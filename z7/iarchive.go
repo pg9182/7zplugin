@@ -2,7 +2,16 @@ package z7
 
 import "github.com/lxn/win"
 
-var IID_IInArchive = win.IID{0x23170F69, 0x40C1, 0x278A, [8]byte{0, 0, 0, 6, 0, 0x60, 0, 0}}
+// CPP/7zip/Archive/IArchive.h
+
+func Z7_IFACE_CONSTR_ARCHIVE___IID(n byte) win.IID {
+	return Z7_DECL_IFACE_7ZIP___IID(6, n)
+}
+
+var (
+	IID_IInArchive  = Z7_IFACE_CONSTR_ARCHIVE___IID(0x60)
+	IID_IOutArchive = Z7_IFACE_CONSTR_ARCHIVE___IID(0xA0)
+)
 
 type NArchive_NHandlerPropID = uint32
 
@@ -45,4 +54,12 @@ const (
 	NArchive_NArcInfoFlags_kATime_Default   NArchive_NArcInfoFlags = 1 << 17
 	NArchive_NArcInfoFlags_kMTime           NArchive_NArcInfoFlags = 1 << 18
 	NArchive_NArcInfoFlags_kMTime_Default   NArchive_NArcInfoFlags = 1 << 19
+)
+
+type NArchive_k_IsArc_Res uint32
+
+const (
+	NArchive_k_IsArc_Res_NO        NArchive_k_IsArc_Res = 0
+	NArchive_k_IsArc_Res_YES       NArchive_k_IsArc_Res = 1
+	NArchive_k_IsArc_Res_NEED_MORE NArchive_k_IsArc_Res = 2
 )

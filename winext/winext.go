@@ -5,8 +5,13 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 )
+
+type PROPID = uint32
+type PROPVARIANT = win.VARIANT // TODO: is this the same as PROPVARIANT internally?
+type HRESULT = uint32          // note: actually an int32, but the constants in the win pkg are untyped and overflow its HRESULT...
 
 var (
 	liboleaut32 = windows.NewLazySystemDLL("oleaut32.dll")
