@@ -36,8 +36,8 @@ jobs:
       - run: go generate ./plugins/${{matrix.plugin}}
       - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: amd64, CC: gcc, MSYSTEM: MINGW64 }
         run: go build -buildmode=c-shared -ldflags '-s -w -extldflags=-static' -trimpath -v -x -o ${{matrix.plugin}}64.dll ./plugins/${{matrix.plugin}}
-      - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: 386, CC: gcc, MSYSTEM: MINGW32 }
-        run: go build -buildmode=c-shared -ldflags '-s -w -extldflags=-static' -trimpath -v -x -o ${{matrix.plugin}}32.dll ./plugins/${{matrix.plugin}}
+    # - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: 386, CC: gcc, MSYSTEM: MINGW32 }
+    #   run: go build -buildmode=c-shared -ldflags '-s -w -extldflags=-static' -trimpath -v -x -o ${{matrix.plugin}}32.dll ./plugins/${{matrix.plugin}}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{matrix.plugin}}
