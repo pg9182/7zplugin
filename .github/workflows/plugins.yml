@@ -5,40 +5,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  list:
-    name: list
-    runs-on: windows-latest
-    outputs:
-      plugins: ${{ steps.list.outputs.plugins }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-      - run: echo "plugins=$(go list -json ./plugins/... | jq -cs 'map(.ImportPath|split("/")[-1])')" >> $GITHUB_OUTPUT
-        id: list
-        shell: bash
-
   build:
-    needs: list
-    name: ${{matrix.plugin}}
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        plugin: ${{fromJSON(needs.list.outputs.plugins)}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
       - run: go mod download
-      - run: go generate ./plugins/${{matrix.plugin}}
-      - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: amd64, CC: gcc, MSYSTEM: MINGW64 }
-        run: go build -buildmode=c-shared -ldflags '-s -w -extldflags=-static' -trimpath -v -x -o ${{matrix.plugin}}64.dll ./plugins/${{matrix.plugin}}
-    # - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: 386, CC: gcc, MSYSTEM: MINGW32 }
-    #   run: go build -buildmode=c-shared -ldflags '-s -w -extldflags=-static' -trimpath -v -x -o ${{matrix.plugin}}32.dll ./plugins/${{matrix.plugin}}
+      - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: amd64, CC: x86_64-w64-mingw32-gcc, MSYSTEM: MINGW64 }
+        run: go run . 64 -ldflags '-s -w -extldflags=-static' -trimpath -v -x ./plugins/...
+    # - env: { CGO_ENABLED: 1, GOOS: windows, GOARCH: 386, CC: x86_64-w64-mingw32-gcc, MSYSTEM: MINGW32 }
+    #   run: go run . 32 -ldflags '-s -w -extldflags=-static' -trimpath -v -x ./plugins/...
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.plugin}}
-          path: ${{matrix.plugin}}*.dll
+          name: plugins
+          path: '*.dll'
