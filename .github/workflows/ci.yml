@@ -1,0 +1,32 @@
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  plugin:
+    name: plugin${{matrix.arch}}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: 64
+            apt: mingw-w64-x86-64
+            cc: x86_64-w64-mingw32
+          - arch: 32
+            apt: mingw-w64-i686
+            cc: i686-w64-mingw32
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - run: sudo apt install -y gcc-${{matrix.apt}} g++-${{matrix.apt}}
+      - run: go run . ${{matrix.arch}} CC=${{matrix.cc}}-gcc CXX=${{matrix.cc}}-g++ -a -ldflags '-s -w -extldflags=-static' -trimpath -v ./plugins/...
+        # note: -a is needed to prevent caching issues when switching the C compiler (https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin${{matrix.arch}}
+          path: '*.dll'
